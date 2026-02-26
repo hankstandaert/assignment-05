@@ -1,0 +1,65 @@
+---
+title: "WDI 2022: Quick Findings"
+author: "Hank Standaert"
+date: last-modified
+format:
+  revealjs:
+    theme: simple
+    transition: slide
+    slide-number: true
+execute:
+  echo: false
+  warning: false
+  message: false
+bibliography: references.bib
+---
+
+## Title slide
+
+A quick summary of 2022 World Development Indicators (WDI).  
+Source: World Bank WDI [@worldbank_wdi].
+
+---
+
+## What’s in the data?
+
+- 217 countries, year = 2022
+- Indicators include GDP per capita, inflation, growth, life expectancy, etc.
+
+```{python}
+import pandas as pd
+df = pd.read_csv("wdi.csv")
+df.shape
+```
+
+# GDP per capita distribution
+
+```{python}
+import matplotlib.pyplot as plt
+plt.figure()
+df["gdp_per_capita"].dropna().plot(kind="hist", bins=30)
+plt.title("GDP per capital distribution (2022)")
+plt.xlabel("GDP per capital (current US$)")
+plt.ylabel("Number of countries")
+plt.show()
+```
+
+# Inflation vs GDP growth
+
+```{python}
+sub = df[["inflation_rate","gdp_growth_rate"]].dropna()
+plt.figure()
+plt.scatter(sub["inflation_rate"], sub["gdp_growth_rate"])
+plt.title("Inflation vs GDP growth (2022)")
+plt.xlabel("Inflation rate (%)")
+plt.ylabel("GDP growth rate (%)")
+plt.show()
+```
+
+# Key summary table
+
+```{python}
+stats = df[["gdp_per_capita","inflation_rate","gdp_growth_rate","life_expectancy"]].describe().T
+stats = stats[["count","mean","std","min","50%","max"]]
+stats.round(2)
+```

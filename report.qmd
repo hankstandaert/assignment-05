@@ -1,0 +1,107 @@
+---
+title: "WDI 2022 Snapshot: Growth, Inflation, and Health"
+author: "Hank Standaert"
+date: last-modified
+format:
+  html:
+    toc: true
+    code-fold: true
+  pdf:
+    toc: true
+execute:
+  echo: false
+  warning: false
+  message: false
+bibliography: references.bib
+---
+
+## Overview
+
+This report analyzes a 2022 sample of the World Development Indicators (WDI) dataset for 217 countries.  
+Data source: World Bank WDI [@worldbank_wdi]. Data was downloaded with `wbgapi` [@wbgapi].
+
+## Load data
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("wdi.csv")
+df.head()
+```
+
+```{python}
+df.shape
+```
+
+```{python}
+df["gdp_per_capita"].describe()
+```
+
+# GDP per capita distribution
+
+```{python}
+#| label: fig-gdp-hist
+#| fig-cap: "Distribution of GDP per capita (current US$), 2022. Source: World Bank WDI."
+plt.figure()
+df["gdp_per_capita"].dropna().plot(kind="hist", bins=30)
+plt.title("GDP per capita distribution (2022)")
+plt.xlabel("GDP per capita (current US$)")
+plt.ylabel("Number of countries")
+plt.show()
+```
+
+# Inflation vs GDP growth (scatter)
+
+```{pyhton}
+#| label: fig-inflation-growth
+#| fig-cap: "Inflation rate vs GDP growth rate (2022). Source: World Bank WDI."
+sub = df[["inflation_rate", "gdp_growth_rate"]].dropna()
+
+plt.figure()
+plt.scatter(sub["inflation_rate"], sub["gdp_growth_rate"])
+plt.title("Inflation vs GDP growth (2022)")
+plt.xlabel("Inflation rate (%)")
+plt.ylabel("GDP growth rate (%)")
+plt.show()
+```
+
+# Top 10 countries by life expectancy
+
+```{python}
+top10 = df[["country","life_expectancy"]].dropna().sort_values("life_expectancy", ascending=False).head(10)
+top10
+```
+
+```{python}
+#| label: fig-life-top10
+#| fig-cap: "Top 10 countries by life expectancy (2022). Source: World Bank WDI."
+plt.figure()
+plt.barh(top10["country"], top10["life_expectancy"])
+plt.title("Top 10 life expectancy (2022)")
+plt.xlabel("Life expectancy (years)")
+plt.ylabel("Country")
+plt.gca().invert_yaxis()
+plt.show()
+```
+
+# Key statistics table
+
+```{python}
+stats = df[["gdp_per_capita","inflation_rate","gdp_growth_rate","life_expectancy"]].describe().T
+stats = stats[["count","mean","std","min","50%","max"]]
+stats
+```
+
+```{python}
+#| label: tbl-summary
+#| tbl-cap: "Summary statistics for selected indicators (2022). Source: World Bank WDI."
+stats.round(2)
+```
+
+# Notes on missing data
+
+```{python}
+missing = df.isna().mean().sort_values(ascending=False)
+missing.head(10)
+```
